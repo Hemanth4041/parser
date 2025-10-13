@@ -1,0 +1,889 @@
+{
+  "common_fields_schema": [
+    {
+      "name": "organisation_biz_id",
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "sensitive": false,
+      "required": true,
+      "nullable": false
+    },
+    {
+      "name": "division_biz_id",
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "sensitive": false,
+      "required": true,
+      "nullable": false
+    },
+    {
+      "name": "source_system",
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "sensitive": false,
+      "required": true,
+      "nullable": false,
+      "default_value": "external"
+    },
+    {
+      "name": "account_name",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "sensitive": true,
+      "required": false,
+      "nullable": true,
+      "default_value": null
+    },
+    {
+      "name": "account_number",
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "sensitive": true,
+      "required": true,
+      "nullable": false
+    },
+    {
+      "name": "bsb",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "sensitive": true,
+      "required": false,
+      "nullable": true
+    },
+    {
+      "name": "financial_institute",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "sensitive": true,
+      "required": false,
+      "nullable": true
+    }
+  ],
+
+  "balance_table_schema": [
+    {
+      "name": "balance_date",
+      "type": "DATE",
+      "mode": "REQUIRED",
+      "sensitive": false,
+      "required": true,
+      "nullable": false
+    },
+    {
+      "name": "currency",
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "sensitive": true,
+      "required": true,
+      "nullable": false
+    },
+    {
+      "name": "closing_balance",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "sensitive": true,
+      "required": false,
+      "nullable": true,
+      "at_least_one_of": ["closing_balance", "opening_balance"]
+    },
+    {
+    "name": "opening_balance",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "sensitive": true,
+    "required": false,
+    "nullable": true,
+    "at_least_one_of": ["closing_balance", "opening_balance"]
+    },
+    {
+      "name": "overdraft_limit",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "sensitive": true,
+      "required": false,
+      "nullable": true
+    }
+  ],
+
+  "transactions_table_schema": [
+    {
+      "name": "counterparty_name",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "sensitive": true,
+      "required": false,
+      "nullable": true,
+      "default_value": null
+    },
+    {
+      "name": "counterparty_account_number",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "sensitive": true,
+      "required": false,
+      "nullable": true
+    },
+    {
+      "name": "counterparty_account_bsb",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "sensitive": true,
+      "required": false,
+      "nullable": true
+    },
+    {
+      "name": "counterparty_financial_institute",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "sensitive": true,
+      "required": false,
+      "nullable": true
+    },
+    {
+      "name": "transaction_posting_date",
+      "type": "DATE",
+      "mode": "REQUIRED",
+      "sensitive": false,
+      "required": true,
+      "nullable": false
+    },
+    {
+      "name": "transaction_value_date",
+      "type": "DATE",
+      "mode": "REQUIRED",
+      "sensitive": false,
+      "required": true,
+      "nullable": false
+    },
+    {
+      "name": "currency",
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "sensitive": true,
+      "required": true,
+      "nullable": false
+    },
+    {
+      "name": "transaction_amount",
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "sensitive": true,
+      "required": true,
+      "nullable": false
+    },
+    {
+      "name": "transaction_type",
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "sensitive": true,
+      "required": true,
+      "nullable": false
+    },
+    {
+      "name": "swift_transaction_code",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "sensitive": true,
+      "required": false,
+      "nullable": true
+    }
+  ],
+
+    "ignored_summary_codes": ["965", "967", "969"],
+
+  "SWIFT_TO_BANK": [
+    {
+      "NATAA": "NAB",
+      "ANZBAU": "ANZ",
+      "BENDAU": "Bendigo Bank",
+      "CTBAAU": "CommBank",
+      "HKBAAU": "HSBC Bank",
+      "INGBAU": "ING Bank",
+      "SGBLAU": "St.George Bank",
+      "WPACAU": "Westpac",
+      "BKNZNZ22":"Bank of Newzealand",
+      "CHASUS33":"JPMORGAN CHASE BANK",
+      "MACQAU2S":"MACQUARIE BANK LIMITED"
+    }
+  ],
+
+  "bank_id_default_typecodes": [
+    {
+      "bai_code": "010",
+      "bai_field": "amount",
+      "bq_column": "opening_balance",
+      "table": "balance",
+      "sensitive": false,
+      "required": true,
+      "nullable": false
+    },
+    {
+      "bai_code": "015",
+      "bai_field": "amount",
+      "bq_column": "closing_balance",
+      "table": "balance",
+      "sensitive": false,
+      "required": false,
+      "nullable": false
+    },
+    {
+      "bai_code": "040",
+      "bai_field": "amount",
+      "bq_column": "closing_balance",
+      "table": "balance",
+      "sensitive": false,
+      "required": false,
+      "nullable": false
+    },
+    {
+      "bai_code": "263",
+      "bai_field": "amount",
+      "bq_column": "overdraft_limit",
+      "table": "balance",
+      "sensitive": false,
+      "required": false,
+      "nullable": true
+    },
+    {
+      "bai_code": "100",
+      "bai_field": "amount",
+      "bq_column": "transaction_amount",
+      "table": "transactions",
+      "sensitive": false,
+      "required": true,
+      "nullable": false
+    }
+  ],
+
+  "mappings": [
+    {
+      "bank_id": "Westpac",
+      "mappings": [
+        {
+          "bai_code": "010",
+          "bai_field": "amount",
+          "bq_column": "opening_balance",
+          "table": "balance",
+          "sensitive": false,
+          "required": true,
+          "nullable": false
+        },
+        {
+          "bai_code": "015",
+          "bai_field": "amount",
+          "bq_column": "closing_balance",
+          "table": "balance",
+          "sensitive": false,
+          "required": false,
+          "nullable": false
+        },
+        {
+          "bai_code": "045",
+          "bai_field": "amount",
+          "bq_column": "closing_balance",
+          "table": "balance",
+          "sensitive": false,
+          "required": false,
+          "nullable": false
+        },
+        {
+          "bai_code": "263",
+          "bai_field": "amount",
+          "bq_column": "overdraft_limit",
+          "table": "balance",
+          "sensitive": false,
+          "required": false,
+          "nullable": true
+        },
+        {
+          "bai_code": "100",
+          "bai_field": "amount",
+          "bq_column": "transaction_amount",
+          "table": "transactions",
+          "sensitive": true,
+          "required": true,
+          "nullable": false
+        }
+      ]
+    },
+    {
+      "bank_id": "NAB",
+      "mappings": [
+        {
+          "bai_code": "010",
+          "bai_field": "amount",
+          "bq_column": "opening_balance",
+          "table": "balance",
+          "sensitive": false,
+          "required": true,
+          "nullable": false
+        },
+        {
+          "bai_code": "045",
+          "bai_field": "amount",
+          "bq_column": "closing_balance",
+          "table": "balance",
+          "sensitive": false,
+          "required": false,
+          "nullable": false
+        },
+        {
+          "bai_code": "100",
+          "bai_field": "amount",
+          "bq_column": "transaction_amount",
+          "table": "transactions",
+          "sensitive": true,
+          "required": true,
+          "nullable": false
+        }
+      ]
+    }
+  ],
+
+  "BAI_TO_SWIFT_MAP": {
+    "108": "MSC",
+    "115": "LBX",
+    "118": "LBX",
+    "121": "EDI",
+    "122": "EDI",
+    "123": "EDI",
+    "135": "CMI",
+    "136": "CMI",
+    "140": "DDT",
+    "142": "DDT",
+    "143": "DDT",
+    "145": "CMI",
+    "147": "MSC",
+    "155": "DDT",
+    "156": "DDT",
+    "158": "TRF",
+    "165": "DDT",
+    "166": "DDT",
+    "167": "DDT",
+    "168": "RTI",
+    "169": "DDT",
+    "171": "LDP",
+    "172": "MSC",
+    "173": "MSC",
+    "174": "MSC",
+    "175": "CHK",
+    "176": "CHK",
+    "184": "MSC",
+    "187": "CLR",
+    "189": "CLR",
+    "190": "TRF",
+    "191": "TRF",
+    "195": "TRF",
+    "196": "TRF",
+    "198": "CMP",
+    "201": "TRF",
+    "202": "SEC",
+    "206": "TRF",
+    "208": "TRF",
+    "212": "DCR",
+    "213": "DCR",
+    "214": "FEX",
+    "216": "TRF",
+    "218": "COL",
+    "221": "FEX",
+    "222": "CHK",
+    "224": "COM",
+    "226": "FEX",
+    "227": "STO",
+    "229": "MSC",
+    "232": "SAL",
+    "233": "SAL",
+    "234": "SAL",
+    "235": "RED",
+    "236": "MAT",
+    "237": "COL",
+    "238": "DIV",
+    "240": "CPN",
+    "241": "SEC",
+    "242": "INT",
+    "243": "MAT",
+    "244": "INT",
+    "245": "DIV",
+    "246": "SEC",
+    "247": "CAR",
+    "248": "MSC",
+    "249": "SEC",
+    "252": "RTI",
+    "254": "MSC",
+    "255": "RTI",
+    "257": "RTI",
+    "258": "RTI",
+    "261": "RTI",
+    "263": "ODC",
+    "266": "RTI",
+    "268": "RTI",
+    "271": "CMZ",
+    "274": "CMZ",
+    "275": "CMZ",
+    "276": "CMZ",
+    "277": "CMZ",
+    "278": "CMZ",
+    "281": "CMI",
+    "286": "CMI",
+    "295": "MSC",
+    "301": "MSC",
+    "302": "MSC",
+    "303": "TRF",
+    "304": "TRF",
+    "306": "SEC",
+    "308": "MSC",
+    "320": "SAL",
+    "321": "SAL",
+    "324": "MAT",
+    "325": "MAT",
+    "326": "INT",
+    "327": "MAT",
+    "328": "INT",
+    "329": "INT",
+    "331": "MSC",
+    "342": "MSC",
+    "344": "MSC",
+    "345": "MSC",
+    "346": "INT",
+    "347": "SAL",
+    "348": "OPT",
+    "349": "PRN",
+    "351": "SAL",
+    "353": "MSC",
+    "354": "INT",
+    "355": "INT",
+    "357": "MSC",
+    "358": "MSC",
+    "359": "INT",
+    "362": "COL",
+    "363": "COL",
+    "364": "LDP",
+    "366": "MSC",
+    "367": "MSC",
+    "368": "MSC",
+    "369": "MSC",
+    "372": "MSC",
+    "373": "MSC",
+    "374": "MSC",
+    "376": "MSC",
+    "377": "TAX",
+    "378": "TRF",
+    "379": "CHK",
+    "381": "CHK",
+    "382": "MSC",
+    "383": "MSC",
+    "384": "CLR",
+    "386": "CLR",
+    "387": "CLR",
+    "388": "CLR",
+    "391": "MSC",
+    "392": "MSC",
+    "393": "MSC",
+    "394": "MSC",
+    "395": "RTI",
+    "397": "MSC",
+    "398": "CHG",
+    "399": "MSC",
+    "408": "MSC",
+    "409": "MSC",
+    "415": "LBX",
+    "421": "EDI",
+    "422": "EDI",
+    "423": "EDI",
+    "435": "CHK",
+    "445": "CMI",
+    "447": "DDT",
+    "451": "DDT",
+    "452": "DDT",
+    "455": "DDT",
+    "458": "TRF",
+    "462": "DDT",
+    "464": "TRF",
+    "466": "DDT",
+    "468": "RTI",
+    "469": "DDT",
+    "472": "CHK",
+    "474": "CHK",
+    "475": "CHK",
+    "476": "CHK",
+    "477": "MSC",
+    "479": "MSC",
+    "481": "LDP",
+    "484": "CHK",
+    "485": "MSC",
+    "487": "CLR",
+    "489": "CLR",
+    "491": "TRF",
+    "493": "TRF",
+    "495": "TRF",
+    "496": "TRF",
+    "498": "CMP",
+    "501": "TRF",
+    "502": "SEC",
+    "506": "TRF",
+    "508": "TRF",
+    "512": "DCR",
+    "513": "DCR",
+    "514": "FEX",
+    "516": "TRF",
+    "518": "COL",
+    "522": "CHK",
+    "524": "COM",
+    "526": "FEX",
+    "527": "STO",
+    "529": "MSC",
+    "531": "PCH",
+    "533": "COL",
+    "535": "PCH",
+    "538": "RED",
+    "540": "CPN",
+    "541": "SEC",
+    "542": "PCH",
+    "543": "COL",
+    "544": "INT",
+    "546": "SEC",
+    "547": "CAR",
+    "548": "MSC",
+    "549": "SEC",
+    "552": "RTI",
+    "554": "MSC",
+    "555": "RTI",
+    "557": "RTI",
+    "558": "RTI",
+    "561": "RTI",
+    "563": "ODC",
+    "564": "ODC",
+    "566": "RTI",
+    "567": "CHG",
+    "568": "RTI",
+    "574": "CMZ",
+    "575": "CMZ",
+    "577": "CMZ",
+    "578": "CMZ",
+    "581": "CMI",
+    "595": "MSC",
+    "597": "MSC",
+    "616": "MSC",
+    "622": "MSC",
+    "627": "SEC",
+    "629": "MSC",
+    "631": "MSC",
+    "633": "MSC",
+    "634": "MSC",
+    "641": "MSC",
+    "644": "MSC",
+    "651": "PCH",
+    "654": "INT",
+    "656": "PCH",
+    "657": "OPT",
+    "658": "PRN",
+    "659": "INT",
+    "661": "CHG",
+    "662": "COL",
+    "663": "COL",
+    "664": "LDP",
+    "666": "MSC",
+    "667": "MSC",
+    "668": "MSC",
+    "669": "MSC",
+    "672": "MSC",
+    "673": "MSC",
+    "674": "MSC",
+    "676": "MSC",
+    "677": "TAX",
+    "678": "TRF",
+    "679": "CHK",
+    "681": "CHK",
+    "682": "MSC",
+    "683": "MSC",
+    "684": "CLR",
+    "686": "CLR",
+    "687": "CLR",
+    "688": "CLR",
+    "691": "MSC",
+    "692": "MSC",
+    "693": "MSC",
+    "694": "RTI",
+    "695": "MSC",
+    "696": "COL",
+    "697": "MSC",
+    "698": "CHG",
+    "699": "MSC",
+    "706": "LDP",
+    "708": "TRF",
+    "721": "INT",
+    "722": "PRN",
+    "723": "MSC",
+    "724": "CHG",
+    "725": "MSC",
+    "726": "CHG",
+    "727": "INT",
+    "728": "CHG",
+    "827": "TRF",
+    "828": "TRF",
+    "829": "TRF",
+    "905": "INT",
+    "906": "MSC",
+    "910": "MSC",
+    "911": "MSC",
+    "915": "MSC",
+    "920": "TRF",
+    "925": "MSC",
+    "930": "TRF",
+    "935": "MSC",
+    "936": "MSC",
+    "938": "MSC",
+    "950": "CHG",
+    "951": "CHG",
+    "952": "CHG",
+    "953": "CHG",
+    "955": "CHG",
+    "956": "MSC",
+    "960": "STP",
+    "961": "STP",
+    "962": "STP",
+    "970": "TAX",
+    "971": "TAX",
+    "975": "MSC",
+    "980": "TRF",
+    "985": "MSC",
+    "986": "CHK",
+    "987": "MSC",
+    "988": "MSC"
+  },
+  
+  "SWIFT_CODE_PATTERNS": {
+    "BNK": {
+      "description": "Securities Related Item - Bank fees",
+      "keywords": ["BANK FEE", "BANK CHARGE", "BANKING FEE"]
+    },
+    "BOE": {
+      "description": "Bill of exchange",
+      "keywords": ["BILL OF EXCHANGE", "BOE"]
+    },
+    "BRF": {
+      "description": "Brokerage fee",
+      "keywords": ["BROKERAGE", "BROKER FEE"]
+    },
+    "CAR": {
+      "description": "Securities Related Item - Corporate Actions Related",
+      "keywords": ["CORPORATE ACTION", "CAPITAL CHANGE"]
+    },
+    "CAS": {
+      "description": "Securities Related Item - Cash in Lieu",
+      "keywords": ["CASH IN LIEU"]
+    },
+    "CHG": {
+      "description": "Charges and other expenses",
+      "keywords": ["CHARGE", "FEE", "EXPENSE", "ACCOUNT KEEPING", "SERVICE CHARGE", "LATE CHARGE", "ESTABLISHMENT FEE"]
+    },
+    "CHK": {
+      "description": "Cheques",
+      "keywords": ["CHEQUE", "CHECK", "CHECK PAID", "CERTIFIED CHECK"]
+    },
+    "CLR": {
+      "description": "Cash letters/Cheques remittance",
+      "keywords": ["CASH LETTER", "REMITTANCE"]
+    },
+    "CMI": {
+      "description": "Cash management item - No detail",
+      "keywords": ["CASH MANAGEMENT", "CONCENTRATION", "DISBURSING", "DTC"]
+    },
+    "CMN": {
+      "description": "Cash management item - Notional pooling",
+      "keywords": ["NOTIONAL POOL", "POOLING"]
+    },
+    "CMP": {
+      "description": "Compensation claims",
+      "keywords": ["COMPENSATION"]
+    },
+    "CMS": {
+      "description": "Cash management item - Sweeping",
+      "keywords": ["SWEEP", "SWEEPING"]
+    },
+    "CMT": {
+      "description": "Cash management item - Topping",
+      "keywords": ["TOPPING"]
+    },
+    "CMZ": {
+      "description": "Cash management item - Zero balancing",
+      "keywords": ["ZERO BALANCE", "ZBA", "ZERO-BALANCE"]
+    },
+    "COL": {
+      "description": "Collections",
+      "keywords": ["COLLECTION", "COUPON COLLECTION", "CORRESPONDENT COLLECTION"]
+    },
+    "COM": {
+      "description": "Commission",
+      "keywords": ["COMMISSION"]
+    },
+    "CPN": {
+      "description": "Securities Related Item - Coupon payments",
+      "keywords": ["COUPON"]
+    },
+    "DCR": {
+      "description": "Documentary credit",
+      "keywords": ["DOCUMENTARY CREDIT", "LC", "LETTER OF CREDIT"]
+    },
+    "DDT": {
+      "description": "Direct Debit Item",
+      "keywords": ["DIRECT DEBIT", "ACH DEBIT", "ACH CREDIT", "ACH", "PREAUTHORIZED", "SETTLEMENT"]
+    },
+    "DIS": {
+      "description": "Securities Related Item - Gains disbursement",
+      "keywords": ["DISBURSEMENT", "GAINS"]
+    },
+    "DIV": {
+      "description": "Securities Related Item - Dividends",
+      "keywords": ["DIVIDEND"]
+    },
+    "EDI": {
+      "description": "EDI Transaction",
+      "keywords": ["EDI", "EDIBANX"]
+    },
+    "EQA": {
+      "description": "Equivalent amount",
+      "keywords": ["EQUIVALENT"]
+    },
+    "EXT": {
+      "description": "Securities Related Item - External transfer for own account",
+      "keywords": ["EXTERNAL TRANSFER"]
+    },
+    "FEX": {
+      "description": "Foreign exchange",
+      "keywords": ["FOREIGN EXCHANGE", "FX", "FOREX", "FOREIGN CHECK"]
+    },
+    "INT": {
+      "description": "Interest",
+      "keywords": ["INTEREST", "SWEEP INTEREST"]
+    },
+    "LBX": {
+      "description": "Lock box",
+      "keywords": ["LOCKBOX", "LOCK BOX"]
+    },
+    "LDP": {
+      "description": "Loan deposit",
+      "keywords": ["LOAN", "LOAN PAYMENT", "LOAN DEPOSIT", "LOAN PARTICIPATION"]
+    },
+    "MAR": {
+      "description": "Securities Related Item - Margin payments/Receipts",
+      "keywords": ["MARGIN"]
+    },
+    "MAT": {
+      "description": "Securities Related Item - Maturity",
+      "keywords": ["MATURITY", "MATURED", "PRINCIPAL PAYMENT"]
+    },
+    "MGT": {
+      "description": "Securities Related Item - Management fees",
+      "keywords": ["MANAGEMENT FEE"]
+    },
+    "MSC": {
+      "description": "Miscellaneous",
+      "keywords": ["MISCELLANEOUS", "MISC", "ADJUSTMENT", "DEPOSIT", "REVERSAL", "CORRECTION"]
+    },
+    "NWI": {
+      "description": "Securities Related Item - New issues distribution",
+      "keywords": ["NEW ISSUE"]
+    },
+    "ODC": {
+      "description": "Overdraft charge",
+      "keywords": ["OVERDRAFT"]
+    },
+    "OPT": {
+      "description": "Securities Related Item - Options",
+      "keywords": ["OPTION", "FUTURES"]
+    },
+    "PCH": {
+      "description": "Securities Related Item - Purchase",
+      "keywords": ["PURCHASE", "BUY", "SECURITIES PURCHASED", "INVESTMENT PURCHASED"]
+    },
+    "POP": {
+      "description": "Securities Related Item - Pair-off proceeds",
+      "keywords": ["PAIR OFF", "PROCEEDS"]
+    },
+    "PRN": {
+      "description": "Securities Related Item - Principal pay-down/pay-up",
+      "keywords": ["PRINCIPAL", "PRINCIPAL PAYMENT"]
+    },
+    "REC": {
+      "description": "Securities Related Item - Tax reclaim",
+      "keywords": ["TAX RECLAIM"]
+    },
+    "RED": {
+      "description": "Securities Related Item - Redemption/Withdrawal",
+      "keywords": ["REDEMPTION", "WITHDRAWAL", "REPURCHASE"]
+    },
+    "RIG": {
+      "description": "Securities Related Item - Rights",
+      "keywords": ["RIGHTS"]
+    },
+    "RTI": {
+      "description": "Returned item",
+      "keywords": ["RETURN", "RETURNED", "REVERSAL", "REJECTED"]
+    },
+    "SAL": {
+      "description": "Securities Related Item - Sale",
+      "keywords": ["SALE", "SELL", "SECURITIES SOLD", "INVESTMENT SOLD"]
+    },
+    "SEC": {
+      "description": "Securities",
+      "keywords": ["SECURITIES", "BANKERS ACCEPTANCE", "COMMERCIAL PAPER", "FED FUNDS"]
+    },
+    "SLE": {
+      "description": "Securities Related Item - Securities lending related",
+      "keywords": ["SECURITIES LENDING", "LENDING"]
+    },
+    "STO": {
+      "description": "Standing order",
+      "keywords": ["STANDING ORDER"]
+    },
+    "STP": {
+      "description": "Securities Related Item - Stamp duty",
+      "keywords": ["STAMP DUTY"]
+    },
+    "SUB": {
+      "description": "Securities Related Item - Subscription",
+      "keywords": ["SUBSCRIPTION"]
+    },
+    "SWP": {
+      "description": "Securities Related Item - SWAP payment",
+      "keywords": ["SWAP"]
+    },
+    "TAX": {
+      "description": "Securities Related Item - Withholding tax payment",
+      "keywords": ["TAX", "WITHHOLDING", "TREASURY TAX", "GOVERNMENT TAX"]
+    },
+    "TCK": {
+      "description": "Travellers cheques",
+      "keywords": ["TRAVELLERS CHEQUE", "TRAVELERS CHECK"]
+    },
+    "TCM": {
+      "description": "Securities Related Item - Tripartite collateral management",
+      "keywords": ["COLLATERAL"]
+    },
+    "TRA": {
+      "description": "Securities Related Item - Internal transfer for own account",
+      "keywords": ["INTERNAL TRANSFER"]
+    },
+    "TRF": {
+      "description": "Transfer",
+      "keywords": ["TRANSFER", "INCOMING MONEY TRANSFER", "OUTGOING MONEY TRANSFER", "MONEY TRANSFER", "WIRE TRANSFER", "BOOK TRANSFER", "INTERNATIONAL MONEY TRANSFER", "AUTOMATIC TRANSFER", "REAL TIME PAYMENT", "SEPA", "BACS"]
+    },
+    "TRN": {
+      "description": "Securities Related Item - Transaction fee",
+      "keywords": ["TRANSACTION FEE"]
+    },
+    "UWC": {
+      "description": "Securities Related Item - Underwriting commission",
+      "keywords": ["UNDERWRITING"]
+    },
+    "VDA": {
+      "description": "Value date adjustment",
+      "keywords": ["VALUE DATE ADJUSTMENT"]
+    },
+    "WAR": {
+      "description": "Securities Related Item - Warrant",
+      "keywords": ["WARRANT"]
+    }
+  }
+}
