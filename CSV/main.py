@@ -9,7 +9,7 @@ from CSV.transformer import (
     transform_for_bigquery,
     prepare_rows_for_encryption
 )
-from common.central_validator import CentralValidator  # CHANGED
+from common.central_validator import CentralValidator
 from CSV.config import settings as csv_settings
 from common.settings import BALANCE_TABLE_ID, TRANSACTIONS_TABLE_ID
 from gcp_services.gcs_service import (
@@ -51,7 +51,8 @@ def _determine_table_type_from_filename(filename: str) -> str:
 
 def process_csv_file(gcs_path: str):
     """
-    Process CSV file from GCS using bucket labels for org/div/customer IDs.
+    Process CSV file from GCS using bucket labels for org/div IDs.
+    Uses organisation_biz_id for encryption (no customer_id).
     
     Args:
         gcs_path: GCS path (bucket_name/blob_name)
@@ -61,9 +62,9 @@ def process_csv_file(gcs_path: str):
     """
     logger.info(f"Starting CSV processing for: {gcs_path}")
     
-    # Extract org_id, div_id, customer_id from bucket labels
-    bucket_name, org_id, div_id, customer_id = extract_ids_from_gcs_path(gcs_path)
-    logger.info(f"From bucket labels - Org: '{org_id}', Div: '{div_id}', Customer: '{customer_id}'")
+    # Extract org_id and div_id from bucket labels (no customer_id)
+    bucket_name, org_id, div_id = extract_ids_from_gcs_path(gcs_path)
+    logger.info(f"From bucket labels - Org: '{org_id}', Div: '{div_id}'")
     
     # Extract filename and determine table type
     filename = Path(gcs_path).name
@@ -81,7 +82,7 @@ def process_csv_file(gcs_path: str):
     # Apply defaults
     rows = apply_default_values(rows, schema_table_type, csv_settings.SCHEMA_PATH)
     
-    # Validate using centralized validator - CHANGED
+    # Validate using centralized validator
     validator = CentralValidator(csv_settings.SCHEMA_PATH)
     valid_rows, errors, warnings = validator.validate_rows_batch(rows, schema_table_type)
     
@@ -99,7 +100,7 @@ def process_csv_file(gcs_path: str):
     if not valid_rows:
         raise ValueError("No valid rows to process")
     
-    # Transform for BigQuery
+    # Transform for BigQuery (adds org_id and div_id to rows)
     transformed_rows = transform_for_bigquery(
         valid_rows, 
         table_type, 
@@ -108,29 +109,26 @@ def process_csv_file(gcs_path: str):
         div_id
     )
     
-    # Prepare for encryption
-    rows_with_customer = prepare_rows_for_encryption(
+    # Prepare for encryption (removed customer_id parameter)
+    # This now just verifies organisation_biz_id exists in rows
+    prepared_rows = prepare_rows_for_encryption(
         transformed_rows, 
         schema_table_type, 
-        csv_settings.SCHEMA_PATH, 
-        customer_id
+        csv_settings.SCHEMA_PATH
     )
     
-    # Encrypt sensitive fields
+    # Encrypt sensitive fields (using organisation_biz_id from rows)
     sensitive_fields = validator.get_sensitive_fields(schema_table_type)
     
     if sensitive_fields:
         encryptor = KmsEncryptor()
         encrypted_rows = [
             encryptor.encrypt_row(row, sensitive_fields) 
-            for row in rows_with_customer
+            for row in prepared_rows
         ]
     else:
-        # No encryption needed, remove customer_id before loading
-        encrypted_rows = [
-            {k: v for k, v in row.items() if k != "customer_id"} 
-            for row in rows_with_customer
-        ]
+        # No encryption needed, use rows as-is
+        encrypted_rows = prepared_rows
     
     # Load to BigQuery
     rows_loaded = load_rows_to_bq(encrypted_rows)

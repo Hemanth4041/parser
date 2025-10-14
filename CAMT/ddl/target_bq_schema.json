@@ -38,7 +38,7 @@
       "name": "account_number",
       "type": "STRING",
       "mode": "REQUIRED",
-      "sensitive": true,
+      "sensitive": false,
       "required": true,
       "nullable": false
     },
@@ -54,7 +54,7 @@
       "name": "financial_institute",
       "type": "STRING",
       "mode": "NULLABLE",
-      "sensitive": true,
+      "sensitive": false,
       "required": false,
       "nullable": true
     }
@@ -73,7 +73,7 @@
       "name": "currency",
       "type": "STRING",
       "mode": "REQUIRED",
-      "sensitive": true,
+      "sensitive": false,
       "required": true,
       "nullable": false
     },
@@ -81,7 +81,7 @@
       "name": "closing_balance",
       "type": "STRING",
       "mode": "NULLABLE",
-      "sensitive": true,
+      "sensitive": false,
       "required": false,
       "nullable": true,
       "at_least_one_of": ["closing_balance", "opening_balance"]
@@ -90,7 +90,7 @@
     "name": "opening_balance",
     "type": "STRING",
     "mode": "NULLABLE",
-    "sensitive": true,
+    "sensitive": false,
     "required": false,
     "nullable": true,
     "at_least_one_of": ["closing_balance", "opening_balance"]
@@ -99,7 +99,7 @@
       "name": "overdraft_limit",
       "type": "STRING",
       "mode": "NULLABLE",
-      "sensitive": true,
+      "sensitive": false,
       "required": false,
       "nullable": true
     }
@@ -110,7 +110,7 @@
       "name": "counterparty_name",
       "type": "STRING",
       "mode": "NULLABLE",
-      "sensitive": true,
+      "sensitive": false,
       "required": false,
       "nullable": true,
       "default_value": null
@@ -119,7 +119,7 @@
       "name": "counterparty_account_number",
       "type": "STRING",
       "mode": "NULLABLE",
-      "sensitive": true,
+      "sensitive": false,
       "required": false,
       "nullable": true
     },
@@ -127,7 +127,7 @@
       "name": "counterparty_account_bsb",
       "type": "STRING",
       "mode": "NULLABLE",
-      "sensitive": true,
+      "sensitive": false,
       "required": false,
       "nullable": true
     },
@@ -135,7 +135,7 @@
       "name": "counterparty_financial_institute",
       "type": "STRING",
       "mode": "NULLABLE",
-      "sensitive": true,
+      "sensitive": false,
       "required": false,
       "nullable": true
     },
@@ -159,7 +159,7 @@
       "name": "currency",
       "type": "STRING",
       "mode": "REQUIRED",
-      "sensitive": true,
+      "sensitive": false,
       "required": true,
       "nullable": false
     },
@@ -167,7 +167,7 @@
       "name": "transaction_amount",
       "type": "STRING",
       "mode": "REQUIRED",
-      "sensitive": true,
+      "sensitive": false,
       "required": true,
       "nullable": false
     },
@@ -175,7 +175,7 @@
       "name": "transaction_type",
       "type": "STRING",
       "mode": "REQUIRED",
-      "sensitive": true,
+      "sensitive": false,
       "required": true,
       "nullable": false
     },
@@ -183,7 +183,7 @@
       "name": "swift_transaction_code",
       "type": "STRING",
       "mode": "NULLABLE",
-      "sensitive": true,
+      "sensitive": false,
       "required": false,
       "nullable": true
     }

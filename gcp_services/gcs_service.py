@@ -1,3 +1,6 @@
+"""
+GCS utility functions for reading files and extracting bucket labels
+"""
 import logging
 from google.cloud import storage as gcs
 from google.api_core.exceptions import NotFound
@@ -33,20 +36,19 @@ def get_bucket_labels(bucket_name: str) -> dict:
         raise
 
 
-def extract_ids_from_bucket_labels(bucket_name: str) -> Tuple[str, str, str]:
+def extract_ids_from_bucket_labels(bucket_name: str) -> Tuple[str, str]:
     """
-    Extracts organization_id, division_biz_id, and customer_id from bucket labels.
+    Extracts organization_biz_id and division_biz_id from bucket labels.
     
     Expected label keys:
     - organization_id or org_id or organisation_id or organisation_biz_id
     - division_biz_id or div_id or division_id
-    - customer_id or cust_id
     
     Args:
         bucket_name: GCS bucket name
         
     Returns:
-        Tuple of (organization_id, division_biz_id, customer_id)
+        Tuple of (organization_biz_id, division_biz_id)
         
     Raises:
         ValueError: If required labels are missing
@@ -57,16 +59,12 @@ def extract_ids_from_bucket_labels(bucket_name: str) -> Tuple[str, str, str]:
     org_id = (labels.get('organization_id') or 
               labels.get('org_id') or 
               labels.get('organisation_id') or
-              labels.get('organisation_biz_id'))  # Added support for organisation_biz_id
+              labels.get('organisation_biz_id'))
     
     # Try multiple possible label names for division
     div_id = (labels.get('division_biz_id') or 
               labels.get('div_id') or 
               labels.get('division_id'))
-    
-    # Try multiple possible label names for customer
-    cust_id = (labels.get('customer_id') or 
-               labels.get('cust_id'))
     
     # Validate all required IDs are present
     missing_labels = []
@@ -74,8 +72,6 @@ def extract_ids_from_bucket_labels(bucket_name: str) -> Tuple[str, str, str]:
         missing_labels.append('organization_id/org_id/organisation_biz_id')
     if not div_id:
         missing_labels.append('division_biz_id/div_id')
-    if not cust_id:
-        missing_labels.append('customer_id/cust_id')
     
     if missing_labels:
         raise ValueError(
@@ -83,11 +79,11 @@ def extract_ids_from_bucket_labels(bucket_name: str) -> Tuple[str, str, str]:
             f"Found labels: {list(labels.keys())}"
         )
     
-    logger.info(f"Extracted IDs from bucket labels - Org: '{org_id}', Div: '{div_id}', Customer: '{cust_id}'")
-    return org_id, div_id, cust_id
+    logger.info(f"Extracted IDs from bucket labels - Org: '{org_id}', Div: '{div_id}'")
+    return org_id, div_id
 
 
-def extract_ids_from_gcs_path(gcs_path: str) -> Tuple[str, str, str, str]:
+def extract_ids_from_gcs_path(gcs_path: str) -> Tuple[str, str, str]:
     """
     Extracts bucket name and IDs from GCS path using bucket labels.
     
@@ -95,15 +91,15 @@ def extract_ids_from_gcs_path(gcs_path: str) -> Tuple[str, str, str, str]:
         gcs_path: GCS path in format 'bucket_name/blob_name'
         
     Returns:
-        Tuple of (bucket_name, organization_id, division_biz_id, customer_id)
+        Tuple of (bucket_name, organization_biz_id, division_biz_id)
     """
     if "/" not in gcs_path:
         raise ValueError("Invalid GCS path format. Expected 'bucket_name/blob_name'.")
     
     bucket_name = gcs_path.split("/", 1)[0]
-    org_id, div_id, cust_id = extract_ids_from_bucket_labels(bucket_name)
+    org_id, div_id = extract_ids_from_bucket_labels(bucket_name)
     
-    return bucket_name, org_id, div_id, cust_id
+    return bucket_name, org_id, div_id
 
 
 def read_file_from_gcs(gcs_path: str) -> str:

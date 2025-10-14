@@ -1,3 +1,6 @@
+"""
+CAMT transformer - converts CAMT statements to BigQuery rows
+"""
 import logging
 from typing import List, Dict
 from CAMT.src.camt_core.models.camt_model import Statement, BankToCustomerStatement
@@ -9,11 +12,10 @@ logger = logging.getLogger(__name__)
 class Transformer:
     """Transforms parsed CAMT objects into schema-compliant rows with BigQuery target tables."""
 
-    def __init__(self, org_id: str, div_id: str, cust_id: str, 
+    def __init__(self, org_id: str, div_id: str, 
                  balance_table: str, transactions_table: str):
         self.org_id = org_id
         self.div_id = div_id
-        self.cust_id = cust_id
         self.balance_table = balance_table
         self.transactions_table = transactions_table
 
@@ -61,7 +63,7 @@ class Transformer:
             # Format: "032-999999994"
             return account_id.split("-")[0]
         elif len(account_id) >= 6 and account_id[:6].isdigit():
-            # Format: "032999999994" - extract first 3 digits as BSB
+            # Format: "032999999994" - extract first 6 digits as BSB
             return account_id[:6]
         
         return None
@@ -72,7 +74,6 @@ class Transformer:
         bsb = self._extract_bsb(account_id)
         
         return {
-            "customer_id": self.cust_id,  # For KMS encryption lookup
             "organisation_biz_id": self.org_id,
             "division_biz_id": self.div_id,
             "source_system": "external",

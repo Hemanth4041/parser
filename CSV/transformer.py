@@ -6,7 +6,7 @@ import logging
 from typing import List, Dict
 from io import StringIO
 from CSV.utils.csv_helper import clean_csv_row
-from common.central_validator import CentralValidator  # CHANGED: Use centralized validator
+from common.central_validator import CentralValidator
 
 logger = logging.getLogger(__name__)
 
@@ -46,8 +46,8 @@ def apply_default_values(rows: List[Dict], table_type: str, schema_path: str) ->
     Returns:
         List of rows with default values applied
     """
-    validator = CentralValidator(schema_path)  # CHANGED: Use centralized validator
-    schema = validator._get_schema_for_table(table_type)  # CHANGED: Use centralized method
+    validator = CentralValidator(schema_path)
+    schema = validator._get_schema_for_table(table_type)
     
     # Build a map of field names to their default values
     default_values_map = {}
@@ -88,11 +88,11 @@ def transform_for_bigquery(rows: List[Dict], table_type: str, schema_path: str, 
     Returns:
         List of transformed rows ready for BigQuery
     """
-    validator = CentralValidator(schema_path)  # CHANGED: Use centralized validator
+    validator = CentralValidator(schema_path)
     
     # Map table_type to schema type string
     schema_table_type = "balance" if "balance" in table_type.lower() else "transactions"
-    schema = validator._get_schema_for_table(schema_table_type)  # CHANGED: Use centralized method
+    schema = validator._get_schema_for_table(schema_table_type)
     
     transformed_rows = []
     
@@ -120,20 +120,20 @@ def transform_for_bigquery(rows: List[Dict], table_type: str, schema_path: str, 
     return transformed_rows
 
 
-def prepare_rows_for_encryption(rows: List[Dict], table_type: str, schema_path: str, customer_id: str) -> List[Dict]:
+def prepare_rows_for_encryption(rows: List[Dict], table_type: str, schema_path: str) -> List[Dict]:
     """
-    Prepares rows for encryption by adding customer_id to each row.
+    Prepares rows for encryption.
+    Note: organisation_biz_id is already in the row and will be used for key lookup.
     
     Args:
         rows: List of row dictionaries
         table_type: Either 'balance' or 'transactions'
         schema_path: Path to schema JSON file
-        customer_id: Customer identifier for encryption key lookup (from bucket labels)
         
     Returns:
-        List of rows with customer_id added for encryption
+        List of rows ready for encryption (no modifications needed)
     """
-    validator = CentralValidator(schema_path)  # CHANGED: Use centralized validator
+    validator = CentralValidator(schema_path)
     sensitive_fields = validator.get_sensitive_fields(table_type)
     
     if not sensitive_fields:
@@ -141,12 +141,10 @@ def prepare_rows_for_encryption(rows: List[Dict], table_type: str, schema_path: 
         # No encryption needed, return rows as-is
         return rows
     
-    prepared_rows = []
-    for row in rows:
-        prepared_row = row.copy()
-        # Add customer_id for encryption key lookup
-        prepared_row["customer_id"] = customer_id
-        prepared_rows.append(prepared_row)
+    # Verify organisation_biz_id exists in all rows
+    for idx, row in enumerate(rows):
+        if "organisation_biz_id" not in row or not row["organisation_biz_id"]:
+            raise ValueError(f"Row {idx} missing required 'organisation_biz_id' for encryption key lookup")
     
-    logger.info(f"Prepared {len(prepared_rows)} rows for encryption with customer_id: {customer_id}")
-    return prepared_rows
+    logger.info(f"Prepared {len(rows)} rows for encryption using organisation_biz_id")
+    return rows

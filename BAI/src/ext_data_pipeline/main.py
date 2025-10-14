@@ -12,7 +12,7 @@ from BAI.src.ext_data_pipeline.config.config_loader import (
     get_all_sensitive_fields,
     get_bank_mappings
 )
-from common.central_validator import CentralValidator  # CHANGED
+from common.central_validator import CentralValidator
 from gcp_services.gcs_service import (
     read_file_from_gcs, 
     extract_ids_from_gcs_path
@@ -48,7 +48,7 @@ def _extract_bank_id_from_filename(filename: str) -> str:
 
 def process_bai_file(gcs_path: str):
     """
-    Process BAI file from GCS using bucket labels for org/div/customer IDs.
+    Process BAI file from GCS using bucket labels for org/div IDs.
     Bank ID is still extracted from filename for bank-specific mappings.
     
     Args:
@@ -59,9 +59,9 @@ def process_bai_file(gcs_path: str):
     """
     logger.info(f"Starting BAI processing for: {gcs_path}")
     
-    # Extract org_id, div_id, customer_id from bucket labels
-    bucket_name, org_id, div_id, customer_id = extract_ids_from_gcs_path(gcs_path)
-    logger.info(f"From bucket labels - Org: '{org_id}', Div: '{div_id}', Customer: '{customer_id}'")
+    # Extract org_id and div_id from bucket labels (no customer_id)
+    bucket_name, org_id, div_id = extract_ids_from_gcs_path(gcs_path)
+    logger.info(f"From bucket labels - Org: '{org_id}', Div: '{div_id}'")
     
     # Extract bank_id from filename (needed for bank-specific mappings)
     filename = gcs_path.split("/", 1)[1] if "/" in gcs_path else gcs_path
@@ -75,17 +75,17 @@ def process_bai_file(gcs_path: str):
     bai_text = read_file_from_gcs(gcs_path)
     bai_file = parse_from_string(bai_text, check_integrity=True)
     
-    # Transform
+    # Transform (removed customer_id parameter)
     bank_mappings = get_bank_mappings(config, bank_id)
     transformed_rows = transformer.transform_bai_to_rows(
-        bai_file, org_id, div_id, customer_id, config, bank_mappings
+        bai_file, org_id, div_id, config, bank_mappings
     )
     
     if not transformed_rows:
         logger.warning("No rows to process")
         return {"rows_processed": 0}
     
-    # Validate using centralized validator - CHANGED
+    # Validate using centralized validator
     validator = CentralValidator(bai_settings.MAPPING_CONFIG_PATH)
 
     # Separate balance and transaction rows for validation
@@ -119,7 +119,7 @@ def process_bai_file(gcs_path: str):
         logger.error(f"Validation failed with {len(all_errors)} error(s)")
         raise ValueError(f"Validation failed: {all_errors[0]}")  # Raise first error
     
-    # Encrypt
+    # Encrypt (using organisation_biz_id from rows)
     sensitive_fields = get_all_sensitive_fields(config)
     encryptor = KmsEncryptor()
     encrypted_rows = [
