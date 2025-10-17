@@ -4,7 +4,7 @@ GCS utility functions for reading files and extracting bucket labels
 import logging
 from google.cloud import storage as gcs
 from google.api_core.exceptions import NotFound
-from common.settings import PROJECT_ID
+from common.env_variables.settings import PROJECT_ID
 from typing import Tuple, Optional
 
 logger = logging.getLogger(__name__)

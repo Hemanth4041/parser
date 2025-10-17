@@ -1,9 +1,10 @@
 """
 BAI-specific settings
 """
-import os
 from pathlib import Path
 
-# Mapping configuration path
-BAI_MODULE_DIR = Path(__file__).parent.parent.parent.parent
-MAPPING_CONFIG_PATH = str(BAI_MODULE_DIR / "ddl" / "target_bq_schema.json")
+# Base directory: go up 4 levels from this file
+BAI_MODULE_DIR = Path(__file__).resolve().parents[4]
+
+# Updated mapping configuration path
+MAPPING_CONFIG_PATH = str(BAI_MODULE_DIR / "common" / "schema" / "target_bq_schema.json")

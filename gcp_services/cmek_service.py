@@ -5,9 +5,9 @@ import base64
 import logging
 from typing import Dict, List, Optional
 from google.cloud import kms
-from common.settings import PROJECT_ID
-from common.settings import KEY_RING
-from common.settings import LOCATION
+from common.env_variables.settings import PROJECT_ID
+from common.env_variables.settings import KEY_RING
+from common.env_variables.settings import LOCATION
 
 logger = logging.getLogger(__name__)
 

@@ -2,9 +2,9 @@ import logging
 from datetime import datetime
 from typing import Optional, Dict, Any
 from google.cloud import bigquery
-from common.settings import PROJECT_ID
-from common.settings import DATASET_ID
-from common.settings import STATUS_TABLE_ID
+from common.env_variables.settings import PROJECT_ID
+from common.env_variables.settings import DATASET_ID
+from common.env_variables.settings import STATUS_TABLE_ID
 
 logger = logging.getLogger(__name__)
 
