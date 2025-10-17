@@ -276,9 +276,9 @@ class CentralValidator:
         
         return None
     
-    # ============================================================================
+  
     # ROW-LEVEL VALIDATIONS
-    # ============================================================================
+   
     
     def _validate_balance_integrity(self, row: Dict, all_rows: List[Dict] = None) -> Tuple[Optional[str], Optional[str]]:
         """
@@ -310,16 +310,14 @@ class CentralValidator:
         # Check if closing balance is null or empty
         closing_is_null = closing is None or (isinstance(closing, str) and closing.strip() == "")
         
-        # =========================================================================
-        # STEP 1: CRITICAL CHECK - At least one balance must exist (CF-BAL-EX-011)
-        # =========================================================================
+        #  CRITICAL CHECK - At least one balance must exist (CF-BAL-EX-011)
+        
         if opening_is_null and closing_is_null:
             error = "CRITICAL: Both opening_balance and closing_balance are missing. File load rejected (CF-BAL-EX-011)."
             return error, None
         
-        # =========================================================================
-        # STEP 2: If only one balance exists, issue warning but allow processing
-        # =========================================================================
+      # If only one balance exists, issue warning but allow processing
+       
         if opening_is_null:
             warning = "Opening balance missing. Closing balance will be used. Balance integrity check skipped."
             return None, warning
@@ -327,10 +325,8 @@ class CentralValidator:
         if closing_is_null:
             warning = "Closing balance missing. Opening balance will be used. Balance integrity check skipped."
             return None, warning
-        
-        # =========================================================================
-        # STEP 3: Both balances exist - Check if we can perform calculation validation
-        # =========================================================================
+
+        # Both balances exist - Check if we can perform calculation validation
         
         # Check 3a: Are rows provided?
         if all_rows is None or len(all_rows) == 0:
@@ -365,10 +361,9 @@ class CentralValidator:
             logger.debug(f"No transactions found for account {account_num} on {balance_date}. Balance integrity check skipped.")
             return None, None
         
-        # =========================================================================
-        # STEP 4: Perform balance calculation validation
+        # Perform balance calculation validation
         # We have: both balances + transactions for this account
-        # =========================================================================
+        
         try:
             opening_dec = Decimal(str(opening))
             closing_dec = Decimal(str(closing))
@@ -508,9 +503,8 @@ class CentralValidator:
         is_valid = len(errors) == 0
         return is_valid, errors, warnings
     
-    # ============================================================================
     # FILE-LEVEL VALIDATIONS
-    # ============================================================================
+   
     
     def validate_file_structure(self, file_format: str, parsed_data: Any) -> None:
         """
