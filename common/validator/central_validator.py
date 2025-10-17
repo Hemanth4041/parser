@@ -82,11 +82,8 @@ class CentralValidator:
             raise ValueError(f"Unknown table type: {table_type}")
         
         return common_fields + table_fields
-    
-    # ============================================================================
+
     # FIELD-LEVEL VALIDATIONS
-    # ============================================================================
-    
     def _validate_date_format(self, value: Any, field_name: str, is_required: bool = False) -> Optional[str]:
         """
         Validate date is in YYYY-MM-DD format
